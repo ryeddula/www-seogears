@@ -26,6 +26,15 @@ Version 0.01
 
 our $VERSION = '0.01';
 
+## no critic (ProhibitConstantPragma)
+use constant VALID_MONTHS => {
+	'1'  => 'monthly',
+	'12' => 'yearly',
+	'24' => 'bi-yearly',
+	'36' => 'tri-yearly'
+};
+## use critic
+
 =head1 SYNOPSIS
 
 This module provides you with an perl interface to interact with the Seogears API.
@@ -87,9 +96,6 @@ sub new {
 	$self->{_ua}  = LWP::UserAgent->new(%{$lwp_opts});
 	$self->{_req} = HTTP::Request->new('GET');
 
-	#valid month options
-	$self->{_valid_months} = ['1','12','24','36'];
-
 	return $self;
 }
 
@@ -111,7 +117,7 @@ B<Input> Requires that you pass in the following parameters for the call:
 	price     => '14.99'
 	months    => '12'
 
-Croaks if it is unable to sanatize the %params passed successfully, or the HTTP request to the API fails.
+Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
 B<Output> Hash containing the data returned by the API:
 
@@ -126,12 +132,9 @@ B<Output> Hash containing the data returned by the API:
 sub newuser {
 
 	my ($self, $params) = @_;
-	$self->_sanatize_params('new', $params) or $self->_error('Failed to sanatize params. "'.$self->get_error.'": '.Dumper($params), 1);
-	my ($output, $error) = $self->_make_request('new', $params);
-	if ($error) {
-		$self->_error('Failed to process newuser request. HTTP request failed: '.$error, 1);
-	}
-	return decode_json($output);
+	$self->_sanitize_params('new', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+
+	return $self->_make_request_handler('new', $params);
 }
 
 =head2 statuscheck
@@ -143,7 +146,7 @@ B<Input> Requires that you pass in the following parameters for the call:
 	userid    => '123456789'
 	email     => 'test1@testing123.com'
 
-Croaks if it is unable to sanatize the %params passed successfully, or the HTTP request to the API fails.
+Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
 B<Output> Hash containing the data returned by the API:
 
@@ -164,12 +167,9 @@ B<Output> Hash containing the data returned by the API:
 sub statuscheck {
 
 	my ($self, $params) = @_;
-	$self->_sanatize_params('statuscheck', $params) or $self->_error('Failed to sanatize params. "'.$self->get_error.'": '.Dumper($params), 1);
-	my ($output, $error) = $self->_make_request('statuscheck', $params);
-	if ($error) {
-		$self->_error('Failed to process statuscheck request. HTTP request failed: '.$error, 1);
-	}
-	return decode_json($output);
+	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+
+	return $self->_make_request_handler('statuscheck', $params);
 }
 
 =head2 inactivate
@@ -181,7 +181,7 @@ B<Input> Requires that you pass in the following parameters for the call:
 	"bzid"      => "30724"
 	"authkey"   => "WO8407914M283278j87070OPWZGkmvsEG847ZB845Q28584YSBDt684478133472pV3ws1X655571X005Zlhh6810hsxjjka"
 
-Croaks if it is unable to sanatize the %params passed successfully, or the HTTP request to the API fails.
+Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
 B<Output> Hash containing the data returned by the API:
 
@@ -194,12 +194,9 @@ B<Output> Hash containing the data returned by the API:
 sub inactivate {
 
 	my ($self, $params) = @_;
-	$self->_sanatize_params('inactivate', $params) or $self->_error('Failed to sanatize params. "'.$self->get_error.'": '.Dumper($params), 1);
-	my ($output, $error) = $self->_make_request('inactivate', $params);
-	if ($error) {
-		$self->_error('Failed to process inactivate user request. HTTP request failed: '.$error, 1);
-	}
-	return decode_json($output);
+	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+
+	return $self->_make_request_handler('inactivate', $params);
 }
 
 =head2 update
@@ -220,7 +217,7 @@ B<Input> Requires that you pass in the following parameters for the call:
 
 If pack is specified, then a price must be specified along with it.
 
-Croaks if it is unable to sanatize the %params passed successfully, or the HTTP request to the API fails.
+Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
 B<Output> Hash containing the data returned by the API:
 
@@ -233,12 +230,9 @@ B<Output> Hash containing the data returned by the API:
 sub update {
 
 	my ($self, $params) = @_;
-	$self->_sanatize_params('update', $params) or $self->_error('Failed to sanatize params. "'.$self->get_error.'": '.Dumper($params), 1);
-	my ($output, $error) = $self->_make_request('update', $params);
-	if ($error) {
-		$self->_error('Failed to process update user request. HTTP request failed: '.$error, 1);
-	}
-	return decode_json($output);
+	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+
+	return $self->_make_request_handler('update', $params);
 }
 
 =head2 get_tempauth
@@ -250,7 +244,7 @@ B<Input> Requires that you pass in the following parameters for the call:
 	bzid      => '31037'
 	authkey   => 'HH1815009C705940t76917IWWAQdvyoDR077CO567M05324BHUCa744638889409oM8kw5E097737M626Gynd3974rsetvzf'
 
-Croaks if it is unable to sanatize the %params passed successfully, or the HTTP request to the API fails.
+Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
 B<Output> Hash containing the data returned by the API:
 
@@ -264,12 +258,9 @@ B<Output> Hash containing the data returned by the API:
 sub get_tempauth {
 
 	my ($self, $params) = @_;
-	$self->_sanatize_params('auth', $params) or $self->_error('Failed to sanatize params. "'.$self->get_error.'": '.Dumper($params), 1);
-	my ($output, $error) = $self->_make_request('auth', $params);
-	if ($error) {
-		$self->_error('Failed to process get tempauth request. HTTP request failed: '.$error, 1);
-	}
-	return decode_json($output);
+	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+
+	return $self->_make_request_handler('auth', $params);
 }
 
 =head2 get_templogin_url
@@ -283,7 +274,7 @@ B<Input> Requires that you pass in the following parameters for the call:
 
 It will use the userid and email provided to fetch the proper bzid/authkey for the account, which are inturn used to retrieve the tempauthkey that will be used for the login.
 
-Croaks if it is unable to sanatize the %params passed successfully, or the HTTP request to the API fails.
+Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
 B<Output> Returns the login url that can be used to access the control panel on SEOgears.
 Example: https://seogearstools.com/api/login.html?bzid=31037&tempauthkey=OU8937pI03R56Lz493j0958US34Ui9mgJG831JY756X0Tz04WGXVu762IuIxg7643vV6ju9M96J951V430Qvnw41b4qzgp2pu
@@ -347,13 +338,47 @@ The following are not meant to be used directly, but are available if 'finer' co
 
 =cut
 
+=head2 _make_request_handler
+
+Wraps the call to _make_request and handles error checks.
+
+B<INPUT> Takes the 'action' and sanitized paramaters hashref as input.
+
+B<Output> Returns undef on failure (sets $self->{error} with the proper error). Returns a hash with the decoded json data from the API server if successful.
+
+=cut
+
+sub _make_request_handler {
+
+	my $self   = shift;
+	my $action = shift;
+	my $params = shift;
+
+	## no critic (EmptyQuotes)
+	my $uri    = $self->_get_apiurl($action) or return ('', $self->get_error, 1);
+	$uri      .= _stringify_params($params);
+	## use critic
+
+	my ($output, $error) = $self->_make_request($uri);
+	if ($error) {
+		$self->_error('Failed to process "'.$action.'" request. HTTP request failed: '.$error, 1);
+	}
+
+	my $json = eval{ decode_json($output); };
+	if ($EVAL_ERROR){
+		$self->_error('Failed to decode JSON - Invalid data returned from server: '.$output, 1);
+	}
+
+	return $json;
+}
+
 =head2 _make_request
 
 Makes the HTTP request to the API server. 
 
-B<Input> Takes the 'action' and sanatized paramaters hashref as input.
+B<Input> The full uri to perform the HTTP request on.
 
-B<Output> Returns an array containing the http response, and error. 
+B<Output> Returns an array containing the http response, and error.
 If the HTTP request was successful, then the error is blank.
 If the HTTP request failed, then the response is blank and the error is the status line from the HTTP response.
 
@@ -361,12 +386,8 @@ If the HTTP request failed, then the response is blank and the error is the stat
 
 sub _make_request {
 
-	my $self   = shift;
-	my $action = shift;
-	my $params = shift;
-
-	my $uri    = $self->_get_apiurl($action) or return ('', $self->get_error);
-	$uri      .= _stringify_params($params);
+	my $self = shift;
+	my $uri  = shift;
 	$self->{_req}->uri($uri);
 
 	my $res = eval {
@@ -377,13 +398,28 @@ sub _make_request {
 	};
 	alarm 0;
 
-	if (!$res || $EVAL_ERROR || ref $res && $res->status_line =~ m/connection timeout/) {
-		return ('', 'connection timeout');
-	}elsif ($res->is_success()) {
+	## no critic (EmptyQuotes)
+	if (# If $res is undef, then request() failed
+		!$res
+		# or if eval_error is set, then either the timeout alarm was triggered, or some other unforeseen error was caught.
+		|| $EVAL_ERROR
+		# Lastly, if the previous checks were good, and $ref is an object, then check to see if the status_line says that the connection timed out.
+		## no critic (BoundaryMatching DotMatchAnything)
+		|| (ref $res && $res->status_line =~ m/connection timeout/)
+		## use critic
+	) {
+		# Return 'connection timeout' or whatever the eval_error is as the error.
+		return ('', $EVAL_ERROR ? $EVAL_ERROR : 'connection timeout');
+	}
+	# If the response is successful, then return the content.
+	elsif ($res->is_success()) {
 		return ($res->content(), '');
-	} else {
+	}
+	# If the response was not successful, and no evaled error was caught, then return the status_line as the error.
+	else {
 		return ('', $res->status_line);
 	}
+	## use critic
 }
 
 =head2 _stringify_params
@@ -401,45 +437,47 @@ sub _stringify_params {
 	my $params = shift;
 	my $url;
 	foreach my $key (keys %{$params}) {
+		## no critic (NoisyQuotes)
 		$url .= '&'.$key.'='.$params->{$key};
+		## use critic
 	}
 	return $url;
 }
 
-=head2 _sanatize_params
+=head2 _sanitize_params
 
-Sanatizes the data in the hashref passed for the action specified.
+sanitizes the data in the hashref passed for the action specified.
 
-B<Input>  The 'action', and a hashref that has the data that will be sanatized.
+B<Input>  The 'action', and a hashref that has the data that will be sanitized.
 
 B<Output> Boolean value indicating success. The hash is altered in place as needed.
 
 =cut
 
-sub _sanatize_params {
+sub _sanitize_params {
 
 	my $self   = shift;
 	my $action = shift;
 	my $params = shift;
 
 	if ($action eq 'new') {
-		return $self->_sanatize_params_newuser($params);
+		return $self->_sanitize_params_newuser($params);
 	}
 	if ($action eq 'statuscheck') {
-		return $self->_sanatize_params_statuscheck($params);
+		return $self->_sanitize_params_statuscheck($params);
 	}
 	if ($action eq 'inactivate' or $action eq 'auth') {
-		return $self->_sanatize_params_inactivate_auth($params);
+		return $self->_sanitize_params_inactivate_auth($params);
 	}
 	if ($action eq 'update') {
-		return $self->_sanatize_params_update($params);
+		return $self->_sanitize_params_update($params);
 	}
 	return;
 }
 
-=head2 _sanatize_params_newuser
+=head2 _sanitize_params_newuser
 
-Sanatizes the data in the hashref passed for the 'action=new' API call.
+sanitizes the data in the hashref passed for the 'action=new' API call.
 
 B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
 
@@ -460,42 +498,28 @@ The 'expdate' value is calculated via B<_months_from_now($params-E<gt>{'months'}
 
 =cut
 
-sub _sanatize_params_newuser {
+sub _sanitize_params_newuser {
 
 	my $self   = shift;
 	my $params = shift;
 	my %required_keys = map { ($_ => 1) } qw(userid name email phone domain rep pack placement price months);
 
 	#remove any data that shouldn't be in the params beforehand.
-	foreach my $key (keys %{$params}) {
-		if (not $required_keys{$key}) {
-			delete $params->{$key};
-		}
+	_remove_unwanted_keys($params, \%required_keys);
+	if (my $error = _check_required_keys($params, \%required_keys)) {
+		$self->_error($error);
+		return;
 	}
 
-	foreach (keys %required_keys) {
-		if (not exists $params->{$_}) {
-			$self->_error("Missing required parameter: '$_'.");
-			return;
-		} elsif (not $params->{$_}) {
-			$self->_error("Blank value passed for required parameter: '$_'.");
-			return;
-		}
-		if ($_ eq 'months' and (not $self->_valid_months($params->{'months'}))) {
-			$self->_error("Month parameter set incorrectly to: '$params->{$_}'");
-			return;
-		}
-	}
 	#if price is passed as part of the params, use that instead of what the pack price is.
-	$params->{'expdate'}  = uri_escape( _months_from_now($params->{'months'}) );
 	$params->{'brand'}    = $self->get_brandname;
 	$params->{'brandkey'} = $self->get_brandkey;
 	return 1;
 }
 
-=head2 _sanatize_params_statuscheck
+=head2 _sanitize_params_statuscheck
 
-Sanatizes the data in the hashref passed for the 'action=statuscheck' API call.
+sanitizes the data in the hashref passed for the 'action=statuscheck' API call.
 
 B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
 
@@ -506,27 +530,26 @@ B<Output> Boolean value indicating success.
 
 =cut
 
-sub _sanatize_params_statuscheck {
+sub _sanitize_params_statuscheck {
 
 	my $self   = shift;
 	my $params = shift;
+	my %required_keys = map { ($_ => 1) } qw(userid email);
 
-	my @required_keys = qw(userid email);
-	foreach (@required_keys) {
-		if (not exists $params->{$_}) {
-			$self->_error("Missing required parameter: '$_'.");
-			return;
-		} elsif (not $params->{$_}) {
-			$self->_error("Blank value passed for required parameter: '$_'.");
-			return;
-		}
+	#remove any data that shouldn't be in the params beforehand.
+	_remove_unwanted_keys($params, \%required_keys);
+
+	if (my $error = _check_required_keys($params, \%required_keys)) {
+		$self->_error($error);
+		return;
 	}
+
 	return 1;
 }
 
-=head2 _sanatize_params_inactivate_auth
+=head2 _sanitize_params_inactivate_auth
 
-Sanatizes the data in the hashref passed for the 'action=inactivate' and 'auth' API calls.
+sanitizes the data in the hashref passed for the 'action=inactivate' and 'auth' API calls.
 
 B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
 
@@ -537,27 +560,27 @@ B<Output> Boolean value indicating success.
 
 =cut
 
-sub _sanatize_params_inactivate_auth {
+sub _sanitize_params_inactivate_auth {
 
 	my $self   = shift;
 	my $params = shift;
 
-	my @required_keys = qw(bzid authkey);
-	foreach (@required_keys) {
-		if (not exists $params->{$_}) {
-			$self->_error("Missing required parameter: '$_'.");
-			return;
-		} elsif (not $params->{$_}) {
-			$self->_error("Blank value passed for required parameter: '$_'.");
-			return;
-		}
+	my %required_keys = map { ($_ => 1) } qw(bzid authkey);
+
+	#remove any data that shouldn't be in the params beforehand.
+	_remove_unwanted_keys($params, \%required_keys);
+
+	if (my $error = _check_required_keys($params, \%required_keys)) {
+		$self->_error($error);
+		return;
 	}
+
 	return 1;
 }
 
-=head2 _sanatize_params_update
+=head2 _sanitize_params_update
 
-Sanatizes the data in the hashref passed for the 'action=update' API call.
+sanitizes the data in the hashref passed for the 'action=update' API call.
 
 B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
 
@@ -579,48 +602,117 @@ B<Output> Boolean value indicating success. The hash is altered in place as need
 
 =cut
 
-sub _sanatize_params_update {
+sub _sanitize_params_update {
 
 	my $self   = shift;
 	my $params = shift;
-	my @required_keys = qw(bzid authkey);
-	my @optional_keys = qw(email expdate months pack phone price);
+	my %required_keys = map { ($_ => 1) } qw(bzid authkey);
+	my %optional_keys = map { ($_ => 1) } qw(email expdate months pack phone price);
 
 	#remove any data that shouldn't be in the params beforehand.
-	my %keys_check = map { ($_ => 1) } (@required_keys, @optional_keys);
-	foreach my $key (keys %{$params}) {
-		if (not $keys_check{$key}) {
-			delete $params->{$key};
-		}
+	_remove_unwanted_keys($params, {%required_keys, %optional_keys} );
+
+	if (my $error = _check_required_keys($params, \%required_keys)) {
+		$self->_error($error);
+		return;
 	}
 
-	foreach (@required_keys) {
-		if (not exists $params->{$_}) {
-			$self->_error("Missing required parameter: '$_'.");
-			return;
-		} elsif (not $params->{$_}) {
-			$self->_error("Blank value passed for required parameter: '$_'.");
-			return;
-		}
+	if (my $error = _check_optional_keys($params, \%optional_keys)) {
+		$self->_error($error);
+		return;
 	}
 
-	foreach (@optional_keys) {
-		if (exists $params->{$_}) {
-			if ($_ eq 'pack' and (not $params->{'price'})) {
-				$self->_error("Package ID specified without a price value.");
-				return;
-			}
-			if ($_ eq 'months') {
-				if ($self->_valid_months($params->{'months'})) {
-					$params->{'expdate'}  = uri_escape( _months_from_now($params->{'months'}) );
+	return 1;
+}
+
+=head2 _check_required_keys
+
+Checks the params hashref provided for keys specified in the hash for wanted keys.
+
+B<Input> First  arg: Hashref that contains the data to be checked. 
+	     Second arg: Hashref that holds the keys to check for.
+
+B<Output> Blank string if successful.
+	      Error string containing a list of all of the keys that are mising on failure.
+
+=cut
+
+sub _check_required_keys {
+
+	my $params_ref = shift;
+	my $wanted_ref = shift;
+	## no critic (EmptyQuotes)
+	my $error      = '';
+	## use critic
+
+	foreach my $wanted_key (keys %{$wanted_ref}) {
+		if (not exists $params_ref->{$wanted_key}) {
+			$error .= "Missing Parameter: '$wanted_key'. ";
+		} elsif (not $params_ref->{$wanted_key}) {
+			$error .= "Blank value specified for '$wanted_key' parameter: '$params_ref->{$wanted_key}'. ";
+		} else {
+			if ($wanted_key eq 'months') {
+				if (_valid_months($params_ref->{'months'}) ) {
+					$params_ref->{'expdate'}  = uri_escape( _months_from_now($params_ref->{'months'}) );
 				} else {
-					$self->_error("Month parameter specified is not valid: '$params->{$_}'");
-					return;
+					$error .= "Invalid value specified for 'months' parameter: '$params_ref->{'months'}'. ";
 				}
 			}
+
+			if ($wanted_key eq 'pack' and (not $params_ref->{'price'}) ) {
+				$error .= 'Package ID paramater specified without a corresponding "price" parameter.';
+			}
 		}
 	}
-	return 1;
+	return $error;
+}
+
+sub _check_optional_keys {
+
+	my $params_ref   = shift;
+	my $optional_ref = shift;
+	my $error        = '';
+
+	foreach my $optional_key (keys %{$optional_ref}) {
+		if (exists $params_ref->{$optional_key}) {
+			if ($optional_key eq 'months') {
+				if (_valid_months($params_ref->{'months'}) ) {
+					$params_ref->{'expdate'}  = uri_escape( _months_from_now($params_ref->{'months'}) );
+				} else {
+					$error .= "Invalid value specified for 'months' parameter: '$params_ref->{'months'}'. ";
+				}
+			}
+
+			if ($optional_key eq 'pack' and (not $params_ref->{'price'}) ) {
+				$error .= 'Package ID paramater specified without a corresponding "price" parameter.';
+			}
+		}
+	}
+	return $error;
+}
+
+=head2 _remove_unwanted_keys
+
+Deletes keys from the provided params hashref, if they are not listed in the hash for wanted keys.
+
+B<Input> First  arg: Hashref that contains the data to be checked. 
+	     Second arg: Hashref that holds the keys to check for.
+
+B<Output> None/undef.
+
+=cut
+
+sub _remove_unwanted_keys {
+
+	my $params_ref = shift;
+	my $wanted_ref = shift;
+
+	foreach my $key (keys %{$params_ref}) {
+		if (not $wanted_ref->{$key}) {
+			delete $params_ref->{$key};
+		}
+	}
+	return;
 }
 
 =head2 _valid_months
@@ -636,9 +728,8 @@ Returns true if the 'months' value specified is a valid. Currently, you can set 
 
 sub _valid_months {
 
-	my $self   = shift;
 	my $months = shift;
-	if (first { $months == $_ } @{$self->{_valid_months}} ) {
+	if (VALID_MONTHS->{$months}) {
 		return 1;
 	}
 	return;
@@ -666,6 +757,7 @@ sub _get_apiurl {
 	my $self   = shift;
 	my $action = shift;
 
+	## no critic (NoisyQuotes)
 	if ($action eq 'auth') {
 		return $self->get_authurl().'?';
 	} elsif ($action eq 'login') {
@@ -676,11 +768,16 @@ sub _get_apiurl {
 		$self->_error('Unknown action provided.');
 		return;
 	}
+	## use critic
 }
 
 =head2 _error
 
-Internal method that is used to report and set $self->{'error'}. It will croak if called with a true second argument (Such as '$self->_error($msg, 1);').
+Internal method that is used to report and set $self->{'error'}.
+
+It will croak if called with a true second argument. Such as:
+
+	$self->_error($msg, 1);
 
 =cut
 
@@ -688,7 +785,9 @@ sub _error {
 
 	my ($self, $msg, $croak) = @_;
 	$self->{'error'} = $msg;
-	if ($croak) { croak $msg};
+	if ($croak) {
+		croak $msg
+	};
 }
 
 =head2 _months_from_now

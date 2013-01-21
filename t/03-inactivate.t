@@ -1,27 +1,13 @@
 use Test::More tests => 2;
+use FindBin;
+use lib $FindBin::Bin;
+use CommonSubs;
 
-use WWW::SEOGears;
+my $api = CommonSubs::initiate_api();
 
-my $api = WWW::SEOGears->new( { brandname => 'brandname',
-                                brandkey  => '123456789ABCDEFG',
-                                sandbox   => '1',
-                                lwp       => {'parse_head' => 0, 'ssl_opts' => {'verify_hostname' => 0, 'SSL_verify_mode' => '0x00'}}
-                              } );
-
-my $params = {};
-$params->{'userid'}    = random_uid();
-$params->{'name'}      = 'Hostgator testing';
-$params->{'email'}     = random_uid().'@hostgatortesting.com';
-$params->{'phone'}     = '1.5552223333';
-$params->{'domain'}    = 'testing-'.random_uid().'-hostgator.com';
-$params->{'rep'}       = 'hostgatortesting@hostgator.com';
-$params->{'placement'} = 'reg';
-$params->{'pack'}      = '32';
-$params->{'price'}     = '14.99';
-$params->{'months'}    = 1;
-
+my $params = CommonSubs::gen_rand_params();
 #diag "\nCreating an account:\n".explain($params);
-my $output = eval { $api->newuser($params); };
+my $output = CommonSubs::newuser($api, $params);
 if ($output->{success}) {
 	#diag "\nCreate account output:\n".explain($output);
 } else {
@@ -62,15 +48,4 @@ SKIP: {
 		}
 		ok ( $output->{success}, "Inactivate account");
 	}
-}
-
-sub random_uid {
-
-	my $limit    = 12;
-	my $possible = 'abcdefghijkmnpqrstuvwxyz0123456789';
- 	my $string   = '';
- 	while (length($string) < $limit) {
- 		$string .= substr( $possible, ( int( rand( length($possible) ) ) ), 1 );
- 	}
- 	return $string;
 }
