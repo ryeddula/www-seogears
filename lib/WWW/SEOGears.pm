@@ -132,7 +132,7 @@ B<Output> Hash containing the data returned by the API:
 sub newuser {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('new', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('new', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:\n'.Dumper($params), 1);
 
 	return $self->_make_request_handler('new', $params);
 }
@@ -167,7 +167,7 @@ B<Output> Hash containing the data returned by the API:
 sub statuscheck {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:\n'.Dumper($params), 1);
 
 	return $self->_make_request_handler('statuscheck', $params);
 }
@@ -194,7 +194,7 @@ B<Output> Hash containing the data returned by the API:
 sub inactivate {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:\n'.Dumper($params), 1);
 
 	return $self->_make_request_handler('inactivate', $params);
 }
@@ -230,7 +230,7 @@ B<Output> Hash containing the data returned by the API:
 sub update {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:\n'.Dumper($params), 1);
 
 	return $self->_make_request_handler('update', $params);
 }
@@ -258,7 +258,7 @@ B<Output> Hash containing the data returned by the API:
 sub get_tempauth {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:\n'.Dumper($params), 1);
 
 	return $self->_make_request_handler('auth', $params);
 }
