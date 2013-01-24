@@ -33,7 +33,6 @@ use constant VALID_MONTHS => {
 	'24' => 'bi-yearly',
 	'36' => 'tri-yearly'
 };
-
 ## use critic
 
 =head1 SYNOPSIS
@@ -133,7 +132,7 @@ B<Output> Hash containing the data returned by the API:
 sub newuser {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('new', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('new', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
 
 	return $self->_make_request_handler('new', $params);
 }
@@ -168,7 +167,7 @@ B<Output> Hash containing the data returned by the API:
 sub statuscheck {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
 
 	return $self->_make_request_handler('statuscheck', $params);
 }
@@ -195,7 +194,7 @@ B<Output> Hash containing the data returned by the API:
 sub inactivate {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
 
 	return $self->_make_request_handler('inactivate', $params);
 }
@@ -231,7 +230,7 @@ B<Output> Hash containing the data returned by the API:
 sub update {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
 
 	return $self->_make_request_handler('update', $params);
 }
@@ -259,7 +258,7 @@ B<Output> Hash containing the data returned by the API:
 sub get_tempauth {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": '.Dumper($params), 1);
+	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
 
 	return $self->_make_request_handler('auth', $params);
 }
@@ -268,12 +267,16 @@ sub get_tempauth {
 
 Generates the temporary login URL with which you can access the seogears' control panel. Essentially acts as a wrapper that stringifies the data returned by get_tempauth.
 
-B<Input> Requires that you pass in the following parameters for the call:
+B<Input> Requires that you pass in either:
 
 	userid    => '123456789'
 	email     => 'test1@testing123.com'
 
-It will use the userid and email provided to fetch the proper bzid/authkey for the account, which are inturn used to retrieve the tempauthkey that will be used for the login.
+Or
+	bzid      => '31037'
+	authkey   => 'HH1815009C705940t76917IWWAQdvyoDR077CO567M05324BHUCa744638889409oM8kw5E097737M626Gynd3974rsetvzf'
+
+If the bzid/authkey are not provied, then it will attempt to look up the proper information using the userid and email provided.
 
 Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
@@ -285,12 +288,15 @@ Example: https://seogearstools.com/api/login.html?bzid=31037&tempauthkey=OU8937p
 sub get_templogin_url {
 
 	my ($self, $params) = @_;
-	my $current_info = $self->statuscheck($params);
-	if (not $current_info->{success}) {
-		$self->_error("Failed to fetch current account information. Error: $current_info->{'debuginfo'}", 1);
+
+	if (not ($params->{bzid} and $params->{authkey}) ) {
+		my $current_info = $self->statuscheck($params);
+		if (not $current_info->{success}) {
+			$self->_error("Failed to fetch current account information. Error: $current_info->{'debuginfo'}", 1);
+		}
+		$params = {'bzid' => $current_info->{'bzid'}, 'authkey' => $current_info->{'authkey'}};
 	}
 
-	$params = {'bzid' => $current_info->{'bzid'}, 'authkey' => $current_info->{'authkey'}};
 	my $tempauth = $self->get_tempauth($params);
 	if (not $tempauth->{success}) {
 		$self->_error("Failed to fetch tempauth key for account. Error: $tempauth->{'debuginfo'}", 1);
@@ -349,15 +355,16 @@ B<Output> Returns undef on failure (sets $self->{error} with the proper error). 
 
 =cut
 
-## no critic (EmptyQuotes)
 sub _make_request_handler {
 
 	my $self   = shift;
 	my $action = shift;
 	my $params = shift;
 
+	## no critic (EmptyQuotes)
 	my $uri    = $self->_get_apiurl($action) or return ('', $self->get_error, 1);
 	$uri      .= _stringify_params($params);
+	## use critic
 
 	my ($output, $error) = $self->_make_request($uri);
 	if ($error) {
@@ -371,7 +378,6 @@ sub _make_request_handler {
 
 	return $json;
 }
-## use critic
 
 =head2 _make_request
 
@@ -405,7 +411,9 @@ sub _make_request {
 		# or if eval_error is set, then either the timeout alarm was triggered, or some other unforeseen error was caught.
 		|| $EVAL_ERROR
 		# Lastly, if the previous checks were good, and $ref is an object, then check to see if the status_line says that the connection timed out.
-		|| (ref $res && $res->status_line =~ m/connection timeout/ms)
+		## no critic (BoundaryMatching DotMatchAnything)
+		|| (ref $res && $res->status_line =~ m/connection timeout/)
+		## use critic
 	) {
 		# Return 'connection timeout' or whatever the eval_error is as the error.
 		return ('', $EVAL_ERROR ? $EVAL_ERROR : 'connection timeout');
@@ -640,7 +648,9 @@ sub _check_required_keys {
 
 	my $params_ref = shift;
 	my $wanted_ref = shift;
+	## no critic (EmptyQuotes)
 	my $error      = '';
+	## use critic
 
 	foreach my $wanted_key (keys %{$wanted_ref}) {
 		if (not exists $params_ref->{$wanted_key}) {

@@ -267,12 +267,17 @@ sub get_tempauth {
 
 Generates the temporary login URL with which you can access the seogears' control panel. Essentially acts as a wrapper that stringifies the data returned by get_tempauth.
 
-B<Input> Requires that you pass in the following parameters for the call:
+B<Input> Requires that you pass in either:
 
 	userid    => '123456789'
 	email     => 'test1@testing123.com'
 
-It will use the userid and email provided to fetch the proper bzid/authkey for the account, which are inturn used to retrieve the tempauthkey that will be used for the login.
+Or
+
+	bzid      => '31037'
+	authkey   => 'HH1815009C705940t76917IWWAQdvyoDR077CO567M05324BHUCa744638889409oM8kw5E097737M626Gynd3974rsetvzf'
+
+If the bzid/authkey are not provied, then it will attempt to look up the proper information using the userid and email provided.
 
 Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
@@ -284,12 +289,15 @@ Example: https://seogearstools.com/api/login.html?bzid=31037&tempauthkey=OU8937p
 sub get_templogin_url {
 
 	my ($self, $params) = @_;
-	my $current_info = $self->statuscheck($params);
-	if (not $current_info->{success}) {
-		$self->_error("Failed to fetch current account information. Error: $current_info->{'debuginfo'}", 1);
+
+	if (not ($params->{bzid} and $params->{authkey}) ) {
+		my $current_info = $self->statuscheck($params);
+		if (not $current_info->{success}) {
+			$self->_error("Failed to fetch current account information. Error: $current_info->{'debuginfo'}", 1);
+		}
+		$params = {'bzid' => $current_info->{'bzid'}, 'authkey' => $current_info->{'authkey'}};
 	}
 
-	$params = {'bzid' => $current_info->{'bzid'}, 'authkey' => $current_info->{'authkey'}};
 	my $tempauth = $self->get_tempauth($params);
 	if (not $tempauth->{success}) {
 		$self->_error("Failed to fetch tempauth key for account. Error: $tempauth->{'debuginfo'}", 1);

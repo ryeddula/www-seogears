@@ -58,8 +58,15 @@ SKIP: {
 	$params = { 'userid'    => $userid,
 				'email'     => $email,
 	};
-	$tempurl2 = $api->get_templogin_url($params);
-	#diag "\nTempurl: $tempurl\nTempurl2: $tempurl2\n";
+	my $tempurl2 = $api->get_templogin_url($params);
 	my $res2 = $ua->get($tempurl2);
-	ok ($res1->is_success && $res2->is_success, "Both tempurls fetched successfully");
+
+	$params = { 'bzid'    => $bzid,
+				'authkey' => $authkey,
+	};
+	my $tempurl3 = $api->get_templogin_url($params);
+	my $res3 = $ua->get($tempurl3);
+
+	#diag "\nTempurl: $tempurl\nTempurl2: $tempurl2\nTempurl3: $tempurl3\n";
+	ok ($res1->is_success && $res2->is_success && $res3->is_success, "Tempurls fetched successfully");
 }
