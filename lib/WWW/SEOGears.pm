@@ -199,6 +199,29 @@ sub inactivate {
 	return $self->_make_request_handler('inactivate', $params);
 }
 
+=head2 reactivate
+
+activates a user via the 'action=activate' API call.
+
+B<Input> Requires that you pass in the following parameters for the call:
+
+	"bzid"      => "30724"
+	"authkey"   => "WO8407914M283278j87070OPWZGkmvsEG847ZB845Q28584YSBDt684478133472pV3ws1X655571X005Zlhh6810hsxjjka"
+
+Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
+
+B<Output> Hash containing the data returned by the API:
+
+=cut
+
+sub activate {
+
+	my ($self, $params) = @_;
+	$self->_sanitize_params('activate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
+
+	return $self->_make_request_handler('activate', $params);
+}
+
 =head2 update
 
 Updates/Renews a user via the 'action=update' API call.
@@ -366,6 +389,7 @@ sub _make_request_handler {
 	my $uri    = $self->_get_apiurl($action) or return ('', $self->get_error, 1);
 	$uri      .= _stringify_params($params);
 	## use critic
+	print "URI: $uri\n";
 
 	my ($output, $error) = $self->_make_request($uri);
 	if ($error) {
@@ -474,8 +498,8 @@ sub _sanitize_params {
 	if ($action eq 'statuscheck') {
 		return $self->_sanitize_params_statuscheck($params);
 	}
-	if ($action eq 'inactivate' or $action eq 'auth') {
-		return $self->_sanitize_params_inactivate_auth($params);
+	if (first {$action eq $_} qw(auth activate inactivate)) {
+		return $self->_sanitize_params_in_activate_auth($params);
 	}
 	if ($action eq 'update') {
 		return $self->_sanitize_params_update($params);
@@ -568,7 +592,7 @@ B<Output> Boolean value indicating success.
 
 =cut
 
-sub _sanitize_params_inactivate_auth {
+sub _sanitize_params_in_activate_auth {
 
 	my $self   = shift;
 	my $params = shift;
@@ -770,7 +794,7 @@ sub _get_apiurl {
 		return $self->get_authurl().'?';
 	} elsif ($action eq 'login') {
 		return $self->get_loginurl().'?';
-	} elsif (first {$action eq $_} qw(new statuscheck inactivate update)) {
+	} elsif (first {$action eq $_} qw(new statuscheck activate inactivate update)) {
 		return $self->get_userurl()."?action=$action";
 	} else {
 		$self->_error('Unknown action provided.');
