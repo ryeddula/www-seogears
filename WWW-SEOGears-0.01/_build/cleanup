@@ -1,0 +1,5 @@
+do{ my $x = {
+       'WWW-SEOGears-*' => 1,
+       'blib' => 1
+     };
+$x; }

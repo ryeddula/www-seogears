@@ -1,0 +1,29 @@
+---
+abstract: 'Perl Interface for SEOGears API.'
+author:
+  - 'Rishwanth Yeddula <ryeddula@hostgator.com>'
+build_requires:
+  Test::More: 0
+configure_requires:
+  Module::Build: 0
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.112150'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: WWW-SEOGears
+provides:
+  WWW::SEOGears:
+    file: lib/WWW/SEOGears.pm
+    version: 0.01
+requires:
+  Date::Calc: 0
+  HTTP::Request: 0
+  JSON: 0
+  LWP::Protocol::https: 0
+  LWP::UserAgent: 0
+  URI::Escape: 0
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.01
