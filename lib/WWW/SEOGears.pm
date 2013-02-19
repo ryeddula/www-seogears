@@ -684,7 +684,7 @@ sub _check_required_keys {
 		if (not exists $params_ref->{$wanted_key}) {
 			$error .= "Missing Parameter: '$wanted_key'. ";
 		} elsif (not $params_ref->{$wanted_key}) {
-			$error .= "Blank value specified for '$wanted_key' parameter: '$params_ref->{$wanted_key}'. ";
+			$error .= "Blank value specified for '$wanted_key' parameter. ";
 		} else {
 			if ($wanted_key eq 'months') {
 				if (_valid_months($params_ref->{'months'}) ) {
