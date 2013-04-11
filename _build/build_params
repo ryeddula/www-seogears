@@ -115,7 +115,7 @@ do{ my $x = [
          'c_source' => undef,
          'program_name' => undef,
          'autosplit' => undef,
-         'license' => 'perl',
+         'license' => 'artistic_2',
          'build_requires' => {
                                'Test::More' => 0
                              },

@@ -1,12 +1,12 @@
 {
    "abstract" : "Perl Interface for SEOGears API.",
    "author" : [
-      "Rishwanth Yeddula <ryeddula@hostgator.com>"
+      "Rishwanth Yeddula <ryeddula@cpan.org>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.112150",
    "license" : [
-      "perl_5"
+      "artistic_2"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -44,7 +44,7 @@
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://dev.perl.org/licenses/"
+         "http://opensource.org/licenses/artistic-license-2.0.php"
       ]
    },
    "version" : "0.01"

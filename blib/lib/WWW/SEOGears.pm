@@ -199,18 +199,22 @@ sub inactivate {
 	return $self->_make_request_handler('inactivate', $params);
 }
 
-=head2 reactivate
+=head2 activate
 
-activates a user via the 'action=activate' API call.
+Activates a previously inactivated user via the 'action=activate' API call.
 
 B<Input> Requires that you pass in the following parameters for the call:
 
-	"bzid"      => "30724"
-	"authkey"   => "WO8407914M283278j87070OPWZGkmvsEG847ZB845Q28584YSBDt684478133472pV3ws1X655571X005Zlhh6810hsxjjka"
+	'bzid' => '32999'
+	'authkey' => 'BC1052837T155165x75618ZUKZDlbpfMW795RS245L23288ORUUq323360091155yP1ng7E548072L030Zssq0043pldkebf'
 
 Croaks if it is unable to sanitize the %params passed successfully, or the HTTP request to the API fails.
 
 B<Output> Hash containing the data returned by the API:
+
+	'success' => 1,
+	'bzid' => '32999',
+	'debuginfo' => 'Success BZID32999 BC1052837T155165x75618ZUKZDlbpfMW795RS245L23288ORUUq323360091155yP1ng7E548072L030Zssq0043pldkebf'
 
 =cut
 
@@ -389,7 +393,6 @@ sub _make_request_handler {
 	my $uri    = $self->_get_apiurl($action) or return ('', $self->get_error, 1);
 	$uri      .= _stringify_params($params);
 	## use critic
-	print "URI: $uri\n";
 
 	my ($output, $error) = $self->_make_request($uri);
 	if ($error) {
@@ -681,7 +684,7 @@ sub _check_required_keys {
 		if (not exists $params_ref->{$wanted_key}) {
 			$error .= "Missing Parameter: '$wanted_key'. ";
 		} elsif (not $params_ref->{$wanted_key}) {
-			$error .= "Blank value specified for '$wanted_key' parameter: '$params_ref->{$wanted_key}'. ";
+			$error .= "Blank value specified for '$wanted_key' parameter. ";
 		} else {
 			if ($wanted_key eq 'months') {
 				if (_valid_months($params_ref->{'months'}) ) {
@@ -837,9 +840,11 @@ sub _months_from_now {
 
 =head1 AUTHOR
 
-Rishwanth Yeddula, C<< <ryeddula at hostgator.com> >>
+Rishwanth Yeddula, C<< <ryeddula@cpan.org> >>
 
-Hostgator.com LLC
+=head1 ACKNOWLEDGMENTS
+
+Thanks to L<Hostgator.com|http://hostgator.com/> for funding the development of this module and providing test resources.
 
 =head1 BUGS
 
@@ -877,7 +882,7 @@ L<http://search.cpan.org/dist/WWW-SEOGears/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013 Rishwanth Yeddula, Hostgator.com LLC.
+Copyright 2013 Rishwanth Yeddula.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
