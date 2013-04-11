@@ -13,8 +13,8 @@ do{ my $x = [
                             'blib/script'
                           ],
          'conflicts' => {},
-         'recommends' => {},
          'scripts' => undef,
+         'recommends' => {},
          'pod_files' => undef,
          'dist_version' => '0.01',
          'config_dir' => '_build',
@@ -34,7 +34,7 @@ do{ my $x = [
          'xs_files' => undef,
          'destdir' => undef,
          'metafile' => 'META.yml',
-         'mb_version' => '0.38',
+         'mb_version' => '0.4003',
          'use_tap_harness' => 0,
          'test_file_exts' => [
                                '.t'
@@ -44,13 +44,13 @@ do{ my $x = [
          'install_base' => undef,
          'module_name' => 'WWW::SEOGears',
          'recursive_test_files' => undef,
+         'perl' => '/usr/bin/perl',
          'libdoc_dirs' => [
                             'blib/lib',
                             'blib/arch'
                           ],
-         'perl' => '/usr/bin/perl',
          'dist_author' => [
-                            'Rishwanth Yeddula <ryeddula@hostgator.com>'
+                            'Rishwanth Yeddula <ryeddula@cpan.org>'
                           ],
          'bundle_inc' => [],
          'use_rcfile' => 1,
@@ -92,8 +92,8 @@ do{ my $x = [
          'create_makefile_pl' => 'traditional',
          'magic_number' => undef,
          'dynamic_config' => 1,
-         'install_sets' => {},
          'tap_harness_args' => {},
+         'install_sets' => {},
          'install_base_relpaths' => {},
          'create_packlist' => 1,
          'meta_add' => {},

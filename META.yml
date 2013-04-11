@@ -1,13 +1,13 @@
 ---
 abstract: 'Perl Interface for SEOGears API.'
 author:
-  - 'Rishwanth Yeddula <ryeddula@hostgator.com>'
+  - 'Rishwanth Yeddula <ryeddula@cpan.org>'
 build_requires:
   Test::More: 0
 configure_requires:
   Module::Build: 0
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.112150'
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.112150'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html

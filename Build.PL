@@ -6,7 +6,7 @@ use Module::Build;
 my $builder = Module::Build->new(
     module_name         => 'WWW::SEOGears',
     license             => 'perl',
-    dist_author         => q{Rishwanth Yeddula <ryeddula@hostgator.com>},
+    dist_author         => q{Rishwanth Yeddula <ryeddula@cpan.org>},
     dist_version_from   => 'lib/WWW/SEOGears.pm',
     release_status      => 'stable',
     configure_requires => {

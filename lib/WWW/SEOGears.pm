@@ -840,9 +840,11 @@ sub _months_from_now {
 
 =head1 AUTHOR
 
-Rishwanth Yeddula, C<< <ryeddula at hostgator.com> >>
+Rishwanth Yeddula, C<< <ryeddula@cpan.org> >>
 
-Hostgator.com LLC
+=head1 ACKNOWLEDGMENTS
+
+Thanks to HostGator.com for funding the development of this module and providing test resources.
 
 =head1 BUGS
 
@@ -880,7 +882,7 @@ L<http://search.cpan.org/dist/WWW-SEOGears/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013 Rishwanth Yeddula, Hostgator.com LLC.
+Copyright 2013 Rishwanth Yeddula.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
