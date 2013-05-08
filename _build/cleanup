@@ -1,7 +1,5 @@
 do{ my $x = {
        'WWW-SEOGears-*' => 1,
-       'WWW-SEOGears-0.02' => 1,
-       'blib' => 1,
-       'WWW-SEOGears-0.01' => 1
+       'WWW-SEOGears-0.02' => 1
      };
 $x; }

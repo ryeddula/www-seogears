@@ -8,7 +8,7 @@ configure_requires:
   Module::Build: 0
 dynamic_config: 1
 generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.112150'
-license: perl
+license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
@@ -25,5 +25,5 @@ requires:
   LWP::UserAgent: 0
   URI::Escape: 0
 resources:
-  license: http://dev.perl.org/licenses/
+  license: http://opensource.org/licenses/artistic-license-2.0.php
 version: 0.02

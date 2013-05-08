@@ -844,7 +844,7 @@ Rishwanth Yeddula, C<< <ryeddula@cpan.org> >>
 
 =head1 ACKNOWLEDGMENTS
 
-Thanks to HostGator.com for funding the development of this module and providing test resources.
+Thanks to L<Hostgator.com|http://hostgator.com/> for funding the development of this module and providing test resources.
 
 =head1 BUGS
 
