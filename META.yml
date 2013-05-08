@@ -16,7 +16,7 @@ name: WWW-SEOGears
 provides:
   WWW::SEOGears:
     file: lib/WWW/SEOGears.pm
-    version: 0.01
+    version: 0.02
 requires:
   Date::Calc: 0
   HTTP::Request: 0
@@ -26,4 +26,4 @@ requires:
   URI::Escape: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.01
+version: 0.02

@@ -20,11 +20,11 @@ WWW::SEOGears - Perl Interface for SEOGears API.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 ## no critic (ProhibitConstantPragma)
 use constant VALID_MONTHS => {

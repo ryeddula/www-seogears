@@ -14,7 +14,7 @@ if ($output->{success}) {
 	#diag "\nFailed to create account:\n";
 	#diag explain $@;
 }
-ok (not (keys $output), "Create account sanitization failed");
+ok (not (keys %{$output}), "Create account sanitization failed");
 
 $params = { 'userid' => CommonSubs::random_uid(),
 			'email'  => '',
@@ -26,7 +26,7 @@ if ($output->{success}) {
 } else {
 	#diag explain $@;
 }
-ok (not (keys $output), "Statuscheck sanitization failed");
+ok (not (keys %{$output}), "Statuscheck sanitization failed");
 
 $params = { 'bzid' => CommonSubs::random_uid() };
 #diag "\nInactivate account:\n".explain($params);
@@ -36,7 +36,7 @@ if ($output->{success}) {
 } else {
 	#diag explain $@;
 }
-ok (not (keys $output), "Inactivate sanitization failed");
+ok (not (keys %{$output}), "Inactivate sanitization failed");
 
 $params = { 'bzid' => CommonSubs::random_uid() };
 #diag "\nUpdate account:\n".explain($params);
@@ -46,7 +46,7 @@ if ($output->{success}) {
 } else {
 	#diag explain $@;
 }
-ok (not (keys $output), "Update sanitization failed");
+ok (not (keys %{$output}), "Update sanitization failed");
 
 $params = { 'bzid' => CommonSubs::random_uid() };
 #diag "\nGet tempauth:\n".explain($params);
@@ -56,4 +56,4 @@ if ($output->{success}) {
 } else {
 	#diag explain $@;
 }
-ok (not (keys $output), "Get tempauth sanitization failed");
+ok (not (keys %{$output}), "Get tempauth sanitization failed");
