@@ -24,7 +24,7 @@ Version 0.02
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 ## no critic (ProhibitConstantPragma)
 use constant VALID_MONTHS => {
