@@ -45,7 +45,10 @@
    "resources" : {
       "license" : [
          "http://opensource.org/licenses/artistic-license-2.0.php"
-      ]
+      ],
+      "repository" : {
+         "url" : "https://github.com/ryeddula/www-seogears"
+      }
    },
    "version" : "0.02"
 }

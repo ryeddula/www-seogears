@@ -9,6 +9,11 @@ my $builder = Module::Build->new(
     dist_author         => q{Rishwanth Yeddula <ryeddula@cpan.org>},
     dist_version_from   => 'lib/WWW/SEOGears.pm',
     release_status      => 'stable',
+    meta_merge => {
+        resources => {
+            repository => 'https://github.com/ryeddula/www-seogears',
+        }
+    },
     configure_requires => {
         'Module::Build' => 0,
     },
