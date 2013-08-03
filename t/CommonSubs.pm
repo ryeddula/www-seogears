@@ -4,10 +4,10 @@ use WWW::SEOGears;
 
 sub initiate_api {
 
-	my $api = WWW::SEOGears->new( { brandname => 'brandname',
-	                                brandkey  => '123456789ABCDEFG',
+	my $api = WWW::SEOGears->new( { brandname => $ENV{'SEOGEARS_BRANDNAME'} || 'mybrandname',
+	                                brandkey  => $ENV{'SEOGEARS_BRANDKEY'}  || 'mybrandkey',
 	                                sandbox   => '1',
-	                                lwp       => {'parse_head' => 0, 'ssl_opts' => {'verify_hostname' => 0, 'SSL_verify_mode' => '0x00'}}
+	                                http_opts => { 'agent' => 'WWW-SEOGears', 'timeout' => 20, 'verify_SSL' => 0, 'SSL_options' => {'SSL_verify_mode' => 0x00} }
 	                              } );
 
 	return $api;
@@ -41,11 +41,11 @@ sub gen_rand_params {
 
 	my $params = {};
 	$params->{'userid'}    = random_uid();
-	$params->{'name'}      = 'Hostgator testing';
+	$params->{'name'}      = 'testing';
 	$params->{'email'}     = random_uid().'@hostgatortesting.com';
 	$params->{'phone'}     = '1.5552223333';
-	$params->{'domain'}    = 'testing-'.random_uid().'-hostgator.com';
-	$params->{'rep'}       = 'hostgatortesting@hostgator.com';
+	$params->{'domain'}    = 'testing-'.random_uid().'-testing.com';
+	$params->{'rep'}       = 'testing@testing.com';
 	$params->{'placement'} = 'reg';
 	$params->{'pack'}      = '32';
 	$params->{'price'}     = '14.99';

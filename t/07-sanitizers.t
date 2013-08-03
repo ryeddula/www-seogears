@@ -1,7 +1,11 @@
-use Test::More tests => 5;
+use Test::More;
 use FindBin;
 use lib $FindBin::Bin;
 use CommonSubs;
+
+unless ($ENV{'SEOGEARS_BRANDNAME'} and $ENV{'SEOGEARS_BRANDKEY'}) {
+	plan skip_all => 'No $ENV{SEOGEARS_BRANDNAME} and $ENV{SEOGEARS_BRANDKEY} set - Please run the test with a valid brandname and brandkey in the ENV.';
+}
 
 my $api = CommonSubs::initiate_api();
 
@@ -57,3 +61,5 @@ if ($output->{success}) {
 	#diag explain $@;
 }
 ok (not (keys %{$output}), "Get tempauth sanitization failed");
+
+done_testing();

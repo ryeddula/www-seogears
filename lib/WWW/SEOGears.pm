@@ -2,16 +2,15 @@ package WWW::SEOGears;
 
 use 5.008;
 use strict;
-use Carp qw(croak);
+use Carp qw(carp croak);
 use Data::Dumper;
 use English qw(-no_match_vars);
 use List::Util qw(first);
 use warnings FATAL => 'all';
 
 use Date::Calc qw(Add_Delta_YMDHMS Today_and_Now);
-use HTTP::Request;
+use HTTP::Tiny;
 use JSON qw(decode_json);
-use LWP::UserAgent;
 use URI::Escape qw(uri_escape);
 
 =head1 NAME
@@ -20,11 +19,11 @@ WWW::SEOGears - Perl Interface for SEOGears API.
 
 =head1 VERSION
 
-Version 0.02
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 ## no critic (ProhibitConstantPragma)
 use constant VALID_MONTHS => {
@@ -60,15 +59,19 @@ B<Input> takes a hashref that contains:
 
 	Required:
 
-	brandname => Brandname as listed on seogears' end.
-	brandkey  => Brandkey received from seogears.
+	brandname  => Brandname as listed on seogears' end.
+	brandkey   => Brandkey received from seogears.
 	
 	Will croak if the above keys are not present.
 
 	Optional:
-	sandbox   => If specified the sandbox API url is used instead of production.
-	lwp       => hash of options that are passed on to the LWP::UserAgent object.
-	             Example value: {'parse_head' => 0, 'ssl_opts' => {'verify_hostname' => 0, 'SSL_verify_mode' => '0x00'}}
+	sandbox    => If specified the sandbox API url is used instead of production.
+	http_opts  => Hashref of options that are passed on to the HTTP::Tiny object that is used internally.
+	              Example value: { 'agent' => 'WWW-SEOGears', 'timeout' => 20, 'verify_SSL' => 0, 'SSL_options' => {'SSL_verify_mode' => 0x00} }
+
+	Deprecated (will be dropped in the upcoming update): Will emit a warning if used.
+	lwp        => hash of options for LWP::UserAgent - will be converted to their corresponding HTTP::Tiny options.
+	              Example value: {'parse_head' => 0, 'ssl_opts' => {'verify_hostname' => 0, 'SSL_verify_mode' => 0x00}}
 
 =cut
 
@@ -91,10 +94,24 @@ sub new {
 		$self->{userurl} = 'https://seogearstools.com/api/user.html';
 	}
 
-	# The LWP objects for the queries
-	my $lwp_opts = delete $opts->{lwp};
-	$self->{_ua}  = LWP::UserAgent->new(%{$lwp_opts});
-	$self->{_req} = HTTP::Request->new('GET');
+	# Set up the UA object for the queries
+	my $http_opts;
+	if (exists $opts->{lwp}) {
+		carp(
+			"*******************************************************************\n".
+			"You are using the deprecated option: 'lwp' intended for LWP::UserAgent\n".
+			"Please update your code to use http_opts instead, which takes in options for HTTP::Tiny\n".
+			"The passed in options will be converted to HTTP::Tiny options, but not all options will translate to properly.\n".
+			"This might cause unforeseen issues, so please test fully before using this in production.\n".
+			"*******************************************************************\n".
+			" "
+		);
+		$http_opts = _translate_lwp_to_http_opts($opts->{lwp});
+	} elsif (exists $opts->{http_opts}) {
+		$http_opts = $opts->{http_opts};
+	}
+	$http_opts->{agent} ||= 'WWW-SEOGears '.$VERSION;
+	$self->{_ua}  = HTTP::Tiny->new(%{$http_opts});
 
 	return $self;
 }
@@ -132,7 +149,9 @@ B<Output> Hash containing the data returned by the API:
 sub newuser {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('new', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
+	$self->_sanitize_params('new', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
+	$params->{'brand'}    = $self->get_brandname;
+	$params->{'brandkey'} = $self->get_brandkey;
 
 	return $self->_make_request_handler('new', $params);
 }
@@ -167,7 +186,7 @@ B<Output> Hash containing the data returned by the API:
 sub statuscheck {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
+	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
 
 	return $self->_make_request_handler('statuscheck', $params);
 }
@@ -194,7 +213,7 @@ B<Output> Hash containing the data returned by the API:
 sub inactivate {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
+	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
 
 	return $self->_make_request_handler('inactivate', $params);
 }
@@ -221,7 +240,7 @@ B<Output> Hash containing the data returned by the API:
 sub activate {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('activate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
+	$self->_sanitize_params('activate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
 
 	return $self->_make_request_handler('activate', $params);
 }
@@ -257,7 +276,7 @@ B<Output> Hash containing the data returned by the API:
 sub update {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
+	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
 
 	return $self->_make_request_handler('update', $params);
 }
@@ -285,7 +304,7 @@ B<Output> Hash containing the data returned by the API:
 sub get_tempauth {
 
 	my ($self, $params) = @_;
-	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error.'": Parameters passed in:'."\n".Dumper($params), 1);
+	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
 
 	return $self->_make_request_handler('auth', $params);
 }
@@ -423,36 +442,32 @@ sub _make_request {
 
 	my $self = shift;
 	my $uri  = shift;
-	$self->{_req}->uri($uri);
 
 	my $res = eval {
-		local $SIG{ALRM} = sub { croak 'connection timeout' };
+		local $SIG{ ALRM } = sub { croak 'connection timeout' };
 		my $timeout = $self->{_ua}->timeout() || '30';
 		alarm $timeout;
-		$self->{_ua}->request($self->{_req});
+		$self->{_ua}->get($uri);
 	};
 	alarm 0;
 
-	## no critic (EmptyQuotes)
-	if (# If $res is undef, then request() failed
+	## no critic (EmptyQuotes BoundaryMatching DotMatchAnything)
+	if (
+		# If $res is undef, then request() failed
 		!$res
 		# or if eval_error is set, then either the timeout alarm was triggered, or some other unforeseen error was caught.
 		|| $EVAL_ERROR
-		# Lastly, if the previous checks were good, and $ref is an object, then check to see if the status_line says that the connection timed out.
-		## no critic (BoundaryMatching DotMatchAnything)
-		|| (ref $res && $res->status_line =~ m/connection timeout/)
-		## use critic
+		# or if the previous checks were good, and $ref is an object, then check to see if the status_line says that the connection timed out.
+		|| ( ref $res && $res->{content} =~ m/^could not connect/i )
 	) {
-		# Return 'connection timeout' or whatever the eval_error is as the error.
-		return ('', $EVAL_ERROR ? $EVAL_ERROR : 'connection timeout');
-	}
-	# If the response is successful, then return the content.
-	elsif ($res->is_success()) {
-		return ($res->content(), '');
-	}
-	# If the response was not successful, and no evaled error was caught, then return the status_line as the error.
-	else {
-		return ('', $res->status_line);
+		# Return 'unable to connect' or whatever the eval_error was as the error.
+		return ( '', $EVAL_ERROR ? $EVAL_ERROR : 'Unable to connect to server' );
+	} elsif ( $res->{success} ) {
+		# If the response is successful, then return the content.
+		return ( $res->{content}, '' );
+	} else {
+		# If the response was not successful, and no evaled error was caught, then return the content as the error.
+		return ( '', $res->{content});
 	}
 	## use critic
 }
@@ -473,7 +488,7 @@ sub _stringify_params {
 	my $url;
 	foreach my $key (keys %{$params}) {
 		## no critic (NoisyQuotes)
-		$url .= '&'.$key.'='.$params->{$key};
+		$url .= '&'.$key.'='.uri_escape($params->{$key});
 		## use critic
 	}
 	return $url;
@@ -491,90 +506,20 @@ B<Output> Boolean value indicating success. The hash is altered in place as need
 
 sub _sanitize_params {
 
-	my $self   = shift;
-	my $action = shift;
-	my $params = shift;
+	my ($self, $action, $params) = @_;
+	my $required_params = $self->_fetch_required_params($action) or return $self->_error( 'Unknown action specified: ' . $action );
+	my $optional_params = $self->_fetch_optional_params($action);
 
-	if ($action eq 'new') {
-		return $self->_sanitize_params_newuser($params);
-	}
-	if ($action eq 'statuscheck') {
-		return $self->_sanitize_params_statuscheck($params);
-	}
-	if (first {$action eq $_} qw(auth activate inactivate)) {
-		return $self->_sanitize_params_in_activate_auth($params);
-	}
-	if ($action eq 'update') {
-		return $self->_sanitize_params_update($params);
-	}
-	return;
-}
-
-=head2 _sanitize_params_newuser
-
-sanitizes the data in the hashref passed for the 'action=new' API call.
-
-B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
-
-	userid
-	name
-	email
-	phone
-	domain
-	rep
-	pack
-	price
-	placement
-	months
-
-B<Output> Boolean value indicating success. The hash is altered in place as needed.
-
-The 'expdate' value is calculated via B<_months_from_now($params-E<gt>{'months'})>.
-
-=cut
-
-sub _sanitize_params_newuser {
-
-	my $self   = shift;
-	my $params = shift;
-	my %required_keys = map { ($_ => 1) } qw(userid name email phone domain rep pack placement price months);
-
-	#remove any data that shouldn't be in the params beforehand.
-	_remove_unwanted_keys($params, \%required_keys);
-	if (my $error = _check_required_keys($params, \%required_keys)) {
-		$self->_error($error);
-		return;
-	}
-
-	#if price is passed as part of the params, use that instead of what the pack price is.
-	$params->{'brand'}    = $self->get_brandname;
-	$params->{'brandkey'} = $self->get_brandkey;
-	return 1;
-}
-
-=head2 _sanitize_params_statuscheck
-
-sanitizes the data in the hashref passed for the 'action=statuscheck' API call.
-
-B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
-
-	userid
-	email
-
-B<Output> Boolean value indicating success.
-
-=cut
-
-sub _sanitize_params_statuscheck {
-
-	my $self   = shift;
-	my $params = shift;
-	my %required_keys = map { ($_ => 1) } qw(userid email);
-
-	#remove any data that shouldn't be in the params beforehand.
-	_remove_unwanted_keys($params, \%required_keys);
-
-	if (my $error = _check_required_keys($params, \%required_keys)) {
+	if (my $check = _check_params($params, $required_params, $optional_params) ) {
+		my $error;
+		if (ref $check eq 'HASH') {
+			$error .= 'Missing required parameter(s): ' . join (', ', @{ $check->{'required_params'} } ).' ; '
+				if $check->{'required_params'};
+			$error .= 'Blank parameter(s): ' . join (', ', @{ $check->{'blank_params'} } ).' ; '
+				if $check->{'blank_params'};
+		} elsif (not ref $check) {
+			$error = $check;
+		}
 		$self->_error($error);
 		return;
 	}
@@ -582,172 +527,84 @@ sub _sanitize_params_statuscheck {
 	return 1;
 }
 
-=head2 _sanitize_params_inactivate_auth
+sub _fetch_required_params {
 
-sanitizes the data in the hashref passed for the 'action=inactivate' and 'auth' API calls.
+	my ($self, $action) = @_;
+	my $required_keys_map = { 
+		'auth'        => { map { ($_ => 1) } qw(bzid authkey) },
+		'login'       => { },
+		'new'         => { map { ($_ => 1) } qw(userid name email phone domain rep pack placement price months) },
+		'statuscheck' => { map { ($_ => 1) } qw(userid email) },
+		'activate'    => { map { ($_ => 1) } qw(bzid authkey) },
+		'inactivate'  => { map { ($_ => 1) } qw(bzid authkey) },
+		'update'      => { map { ($_ => 1) } qw(bzid authkey) },
+	};
 
-B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
-
-	bzid
-	authkey
-
-B<Output> Boolean value indicating success.
-
-=cut
-
-sub _sanitize_params_in_activate_auth {
-
-	my $self   = shift;
-	my $params = shift;
-
-	my %required_keys = map { ($_ => 1) } qw(bzid authkey);
-
-	#remove any data that shouldn't be in the params beforehand.
-	_remove_unwanted_keys($params, \%required_keys);
-
-	if (my $error = _check_required_keys($params, \%required_keys)) {
-		$self->_error($error);
-		return;
-	}
-
-	return 1;
+	return $required_keys_map->{$action};
 }
 
-=head2 _sanitize_params_update
+sub _fetch_optional_params {
 
-sanitizes the data in the hashref passed for the 'action=update' API call.
+	my ($self, $action) = @_;
+	my $optional_keys_map = {
+		'update' => { map { ($_ => 1) } qw(email expdate months pack phone price) },
+	};
 
-B<Input> The following keys are required. If any of them are missing, it will set $self->{error} and return
-
-	bzid
-	authkey
-
-	Optional parameters:
-	email
-	months
-	pack
-	phone
-	price
-	expdate
-
-If 'pack' is specified, then 'price' must also be given.
-If 'months' is specified, but 'expdate' is not, then a new 'expdate' value is calculated via B<_months_from_now($params-E<gt>{'months'})>
-
-B<Output> Boolean value indicating success. The hash is altered in place as needed.
-
-=cut
-
-sub _sanitize_params_update {
-
-	my $self   = shift;
-	my $params = shift;
-	my %required_keys = map { ($_ => 1) } qw(bzid authkey);
-	my %optional_keys = map { ($_ => 1) } qw(email expdate months pack phone price);
-
-	#remove any data that shouldn't be in the params beforehand.
-	_remove_unwanted_keys($params, {%required_keys, %optional_keys} );
-
-	if (my $error = _check_required_keys($params, \%required_keys)) {
-		$self->_error($error);
-		return;
-	}
-
-	if (my $error = _check_optional_keys($params, \%optional_keys)) {
-		$self->_error($error);
-		return;
-	}
-
-	return 1;
+	return $optional_keys_map->{$action};
 }
 
-=head2 _check_required_keys
+=head2 _check_params
 
-Checks the params hashref provided for keys specified in the hash for wanted keys.
+B<Input>: Three hashrefs that contain the following in the specified order:
 
-B<Input> First  arg: Hashref that contains the data to be checked. 
-	     Second arg: Hashref that holds the keys to check for.
+	1) the hashref to the params that need to be checked.
+	2) the hashref to the 'required' set of params
+	3) the hashref to the 'optional' set of params
 
-B<Output> Blank string if successful.
-	      Error string containing a list of all of the keys that are mising on failure.
+B<Outupt>: Undef if everything is good. If errors are detected, it will:
 
-=cut
+	either return a hashref that has two arrays:
+		'required_params' - which will list the required params that are missing. And
+		'blank_params'    - which will list the params that have blank values specified for them.
+	
+	or a string with a specific error message.
 
-sub _check_required_keys {
+This also 'prunes' the first hashref of params that are not specified in either the required or the optional hashrefs.
 
-	my $params_ref = shift;
-	my $wanted_ref = shift;
-	## no critic (EmptyQuotes)
-	my $error      = '';
-	## use critic
+=cut 
 
-	foreach my $wanted_key (keys %{$wanted_ref}) {
-		if (not exists $params_ref->{$wanted_key}) {
-			$error .= "Missing Parameter: '$wanted_key'. ";
-		} elsif (not $params_ref->{$wanted_key}) {
-			$error .= "Blank value specified for '$wanted_key' parameter. ";
-		} else {
-			if ($wanted_key eq 'months') {
-				if (_valid_months($params_ref->{'months'}) ) {
-					$params_ref->{'expdate'}  = uri_escape( _months_from_now($params_ref->{'months'}) );
-				} else {
-					$error .= "Invalid value specified for 'months' parameter: '$params_ref->{'months'}'. ";
-				}
-			}
+sub _check_params {
 
-			if ($wanted_key eq 'pack' and (not $params_ref->{'price'}) ) {
-				$error .= 'Package ID paramater specified without a corresponding "price" parameter.';
+	my ($params_to_check, $required_params, $optional_params) = @_;
+	my $output;
+
+	foreach my $param ( keys %{ $params_to_check } ) {
+		if (not (exists $required_params->{$param} or exists $optional_params->{$param} ) ) {
+			delete $params_to_check->{$param};
+		} elsif (not length $params_to_check->{ $param } ) {
+			push @{ $output->{'blank_params'} }, $param;
+		}
+
+		if ( $param eq 'months' ) {
+			if ( _valid_months($params_to_check->{'months'}) ) {
+				$params_to_check->{'expdate'} = _months_from_now($params_to_check->{'months'});
+			} else {
+				return 'Invalid value specified for \'months\' parameter: '.$params_to_check->{'months'};
 			}
 		}
-	}
-	return $error;
-}
 
-sub _check_optional_keys {
-
-	my $params_ref   = shift;
-	my $optional_ref = shift;
-	my $error        = '';
-
-	foreach my $optional_key (keys %{$optional_ref}) {
-		if (exists $params_ref->{$optional_key}) {
-			if ($optional_key eq 'months') {
-				if (_valid_months($params_ref->{'months'}) ) {
-					$params_ref->{'expdate'}  = uri_escape( _months_from_now($params_ref->{'months'}) );
-				} else {
-					$error .= "Invalid value specified for 'months' parameter: '$params_ref->{'months'}'. ";
-				}
-			}
-
-			if ($optional_key eq 'pack' and (not $params_ref->{'price'}) ) {
-				$error .= 'Package ID paramater specified without a corresponding "price" parameter.';
-			}
+		if ($param eq 'pack' and (not $params_to_check->{'price'}) ) {
+			return 'Package ID paramater specified without a corresponding "price" parameter';
 		}
 	}
-	return $error;
-}
 
-=head2 _remove_unwanted_keys
-
-Deletes keys from the provided params hashref, if they are not listed in the hash for wanted keys.
-
-B<Input> First  arg: Hashref that contains the data to be checked. 
-	     Second arg: Hashref that holds the keys to check for.
-
-B<Output> None/undef.
-
-=cut
-
-sub _remove_unwanted_keys {
-
-	my $params_ref = shift;
-	my $wanted_ref = shift;
-
-	foreach my $key (keys %{$params_ref}) {
-		if (not $wanted_ref->{$key}) {
-			delete $params_ref->{$key};
+	foreach my $required_param ( keys %{ $required_params } ) {
+		if (not (exists $params_to_check->{ $required_param } and defined $params_to_check->{ $required_param } ) ) {
+			push @{ $output->{'required_params'} }, $required_param;
 		}
 	}
-	return;
+
+	return $output;
 }
 
 =head2 _valid_months
@@ -793,17 +650,22 @@ sub _get_apiurl {
 	my $action = shift;
 
 	## no critic (NoisyQuotes)
-	if ($action eq 'auth') {
-		return $self->get_authurl().'?';
-	} elsif ($action eq 'login') {
-		return $self->get_loginurl().'?';
-	} elsif (first {$action eq $_} qw(new statuscheck activate inactivate update)) {
-		return $self->get_userurl()."?action=$action";
-	} else {
-		$self->_error('Unknown action provided.');
+	my $uri_map = {
+		'auth'        => $self->get_authurl().'?',
+		'login'       => $self->get_loginurl().'?',
+		'new'         => $self->get_userurl().'?action=new',
+		'statuscheck' => $self->get_userurl().'?action=statuscheck',
+		'activate'    => $self->get_userurl().'?action=activate',
+		'inactivate'  => $self->get_userurl().'?action=inactivate',
+		'update'      => $self->get_userurl().'?action=update',
+	};
+	## use critic
+
+	if (not exists $uri_map->{$action} ) {
+		$self->_error('Unknown action specified.');
 		return;
 	}
-	## use critic
+	return $uri_map->{$action};
 }
 
 =head2 _error
@@ -836,6 +698,30 @@ sub _months_from_now {
 	my $months = shift;
 	my @date   = Add_Delta_YMDHMS( Today_and_Now(), 0, $months, 0, 0, 0, 0);
 	return sprintf '%d-%02d-%02d %02d:%02d:%02d', @date;
+}
+
+=head2 _translate_lwp_to_http_opts
+
+Helper method that translates the passed in LWP opts hashref to a corresponding HTTP::Tiny opts hashref.
+
+=cut
+
+sub _translate_lwp_to_http_opts {
+
+	my $lwp_opts = shift;
+	my $http_opts;
+
+	foreach my $opt (qw(agent cookie_jar default_headers local_address max_redirect max_size proxy timeout ssl_opts)) {
+		if ($opt eq 'default_headers' and ref $lwp_opts->{$opt} eq 'HTTP::Headers') {
+			$http_opts->{$opt} = $lwp_opts->{$opt}->as_string;
+		} elsif ($opt eq 'ssl_opts') {
+			$http_opts->{verify_SSL}  = delete $lwp_opts->{$opt}->{'verify_hostname'} if exists $lwp_opts->{$opt}->{'verify_hostname'};
+			$http_opts->{SSL_options} = $lwp_opts->{$opt} if keys %{$lwp_opts->{$opt}};
+		} elsif (defined $lwp_opts->{$opt}) {
+			$http_opts->{$opt} = $lwp_opts->{$opt};
+		}
+	}
+	return $http_opts;
 }
 
 =head1 AUTHOR

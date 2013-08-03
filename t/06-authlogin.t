@@ -1,7 +1,11 @@
-use Test::More tests => 6;
+use Test::More;
 use FindBin;
 use lib $FindBin::Bin;
 use CommonSubs;
+
+unless ($ENV{'SEOGEARS_BRANDNAME'} and $ENV{'SEOGEARS_BRANDKEY'}) {
+	plan skip_all => 'No $ENV{SEOGEARS_BRANDNAME} and $ENV{SEOGEARS_BRANDKEY} set - Please run the test with a valid brandname and brandkey in the ENV.';
+}
 
 my $api = CommonSubs::initiate_api();
 
@@ -68,5 +72,7 @@ SKIP: {
 	my $res3 = $ua->get($tempurl3);
 
 	#diag "\nTempurl: $tempurl\nTempurl2: $tempurl2\nTempurl3: $tempurl3\n";
-	ok ($res1->is_success && $res2->is_success && $res3->is_success, "Tempurls fetched successfully");
+	ok ($res1->{success} && $res2->{success} && $res3->{success}, "Tempurls fetched successfully");
 }
+
+done_testing();

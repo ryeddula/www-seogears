@@ -4,7 +4,7 @@
       "Rishwanth Yeddula <ryeddula@cpan.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.112150",
+   "generated_by" : "Module::Build version 0.4005, CPAN::Meta::Converter version 2.131560",
    "license" : [
       "artistic_2"
    ],
@@ -16,39 +16,38 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Test::More" : 0
+            "Test::More" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "Module::Build" : 0
+            "Module::Build" : "0"
          }
       },
       "runtime" : {
          "requires" : {
-            "Date::Calc" : 0,
-            "HTTP::Request" : 0,
-            "JSON" : 0,
-            "LWP::Protocol::https" : 0,
-            "LWP::UserAgent" : 0,
-            "URI::Escape" : 0
+            "Date::Calc" : "0",
+            "HTTP::Tiny" : "0.029",
+            "JSON" : "0",
+            "Net::SSLeay" : "1.49",
+            "URI::Escape" : "0"
          }
       }
    },
    "provides" : {
       "WWW::SEOGears" : {
          "file" : "lib/WWW/SEOGears.pm",
-         "version" : "0.03"
+         "version" : "0.04"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://opensource.org/licenses/artistic-license-2.0.php"
+         "http://www.perlfoundation.org/artistic_license_2_0"
       ],
       "repository" : {
          "url" : "https://github.com/ryeddula/www-seogears"
       }
    },
-   "version" : "0.03"
+   "version" : "0.04"
 }

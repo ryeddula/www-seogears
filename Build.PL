@@ -21,11 +21,10 @@ my $builder = Module::Build->new(
         'Test::More' => 0,
     },
     requires => {
+        'HTTP::Tiny'           => '0.029',
+        'Net::SSLeay'          => '1.49',
         'URI::Escape'          => 0,
         'Date::Calc'           => 0,
-        'LWP::Protocol::https' => 0,
-        'LWP::UserAgent'       => 0,
-        'HTTP::Request'        => 0,
         'JSON'                 => 0,
         'URI::Escape'          => 0,
     },
