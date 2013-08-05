@@ -86,7 +86,7 @@ sub new {
 	$self->{brandkey}  = delete $opts->{brandkey}  or croak('brandkey is a required parameter');
 
 	# API urls
-	$self->{authurl}  = 'http://seogearstools.com/api/auth.html';
+	$self->{authurl}  = 'https://seogearstools.com/api/auth.html';
 	$self->{loginurl} = 'https://seogearstools.com/api/login.html';
 	if (delete $opts->{sandbox}) {
 		$self->{userurl} = 'https://seogearstools.com/api/user-sandbox.html';
@@ -408,10 +408,8 @@ sub _make_request_handler {
 	my $action = shift;
 	my $params = shift;
 
-	## no critic (EmptyQuotes)
 	my $uri    = $self->_get_apiurl($action) or return $self->_error($self->get_error, 1);
 	$uri      .= _stringify_params($params);
-	## use critic
 
 	my ($output, $error) = $self->_make_request($uri);
 	if ($error) {
@@ -451,7 +449,7 @@ sub _make_request {
 	};
 	alarm 0;
 
-	## no critic (EmptyQuotes BoundaryMatching DotMatchAnything)
+	## no critic (EmptyQuotes BoundaryMatching DotMatchAnything RequireExtendedFormatting)
 	if (
 		# If $res is undef, then request() failed
 		!$res
@@ -530,7 +528,7 @@ sub _sanitize_params {
 sub _fetch_required_params {
 
 	my ($self, $action) = @_;
-	my $required_keys_map = { 
+	my $required_keys_map = {
 		'auth'        => { map { ($_ => 1) } qw(bzid authkey) },
 		'login'       => { },
 		'new'         => { map { ($_ => 1) } qw(userid name email phone domain rep pack placement price months) },
