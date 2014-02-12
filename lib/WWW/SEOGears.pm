@@ -23,7 +23,7 @@ Version 0.04
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 ## no critic (ProhibitConstantPragma)
 use constant VALID_MONTHS => {
@@ -464,8 +464,8 @@ sub _make_request {
 		# If the response is successful, then return the content.
 		return ( $res->{content}, '' );
 	} else {
-		# If the response was not successful, and no evaled error was caught, then return the content as the error.
-		return ( '', $res->{content});
+		# If the response was not successful, and no evaled error was caught, then return the response status_line as the error.
+		return ( '', $res->{status}.' - '.$res->{reason} );
 	}
 	## use critic
 }
@@ -766,7 +766,7 @@ L<http://search.cpan.org/dist/WWW-SEOGears/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013 Rishwanth Yeddula.
+Copyright 2014 Rishwanth Yeddula.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a

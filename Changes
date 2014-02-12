@@ -11,3 +11,5 @@ Revision history for WWW-SEOGears
         Dropped LWP::UserAgent for HTTP::Tiny.
         Updated the tests to use ENV variables for brandname and key instead of hardcoding these values.
         Addressed a bug with the parameter sanitization, all of the params are uri_escaped when stringifying the URI.
+0.05    February 12th, 2014
+        Update the request handler to return the response status line as an error instead of the full content returned.
