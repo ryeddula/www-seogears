@@ -55,7 +55,7 @@ SKIP: {
 		diag explain $@;
 	}
 	ok ($output->{success}, "Getauth returned success");
-	my $tempurl = 'https://seogearstools.com/api/login.html?&bzid='.$output->{bzid}.'&tempauthkey='.$output->{tempauthkey};
+	my $tempurl = 'https://www.soloseo.com/api/login.html?&bzid='.$output->{bzid}.'&tempauthkey='.$output->{tempauthkey};
 	my $ua  = $api->{_ua};
 	my $res1 = $ua->get($tempurl);
 	
@@ -72,7 +72,10 @@ SKIP: {
 	my $res3 = $ua->get($tempurl3);
 
 	#diag "\nTempurl: $tempurl\nTempurl2: $tempurl2\nTempurl3: $tempurl3\n";
-	ok ($res1->{success} && $res2->{success} && $res3->{success}, "Tempurls fetched successfully");
+	#diag $res1->{'url'};
+	#diag $res2->{'url'};
+	#diag $res3->{'url'};
+	ok ($res1->{'url'} ne 'https://www.soloseo.com/?error=notauthorized' && $res2->{'url'} ne 'https://www.soloseo.com/?error=notauthorized' && $res3->{'url'} ne 'https://www.soloseo.com/?error=notauthorized', "Tempurls fetched successfully");
 }
 
 done_testing();

@@ -19,11 +19,11 @@ WWW::SEOGears - Perl Interface for SEOGears API.
 
 =head1 VERSION
 
-Version 0.04
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 ## no critic (ProhibitConstantPragma)
 use constant VALID_MONTHS => {
@@ -86,12 +86,12 @@ sub new {
 	$self->{brandkey}  = delete $opts->{brandkey}  or croak('brandkey is a required parameter');
 
 	# API urls
-	$self->{authurl}  = 'https://seogearstools.com/api/auth.html';
-	$self->{loginurl} = 'https://seogearstools.com/api/login.html';
+	$self->{authurl}  = 'https://www.soloseo.com/api/auth.html';
+	$self->{loginurl} = 'https://www.soloseo.com/api/login.html';
 	if (delete $opts->{sandbox}) {
-		$self->{userurl} = 'https://seogearstools.com/api/user-sandbox.html';
+		$self->{userurl} = 'https://www.soloseo.com/api/user-sandbox.html';
 	} else {
-		$self->{userurl} = 'https://seogearstools.com/api/user.html';
+		$self->{userurl} = 'https://www.soloseo.com/api/user.html';
 	}
 
 	# Set up the UA object for the queries
@@ -187,7 +187,8 @@ sub statuscheck {
 
 	my ($self, $params) = @_;
 	$self->_sanitize_params('statuscheck', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
-
+	$params->{'brand'}    = $self->get_brandname;
+	$params->{'brandkey'} = $self->get_brandkey;
 	return $self->_make_request_handler('statuscheck', $params);
 }
 
@@ -214,7 +215,8 @@ sub inactivate {
 
 	my ($self, $params) = @_;
 	$self->_sanitize_params('inactivate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
-
+	$params->{'brand'}    = $self->get_brandname;
+	$params->{'brandkey'} = $self->get_brandkey;
 	return $self->_make_request_handler('inactivate', $params);
 }
 
@@ -241,7 +243,8 @@ sub activate {
 
 	my ($self, $params) = @_;
 	$self->_sanitize_params('activate', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
-
+	$params->{'brand'}    = $self->get_brandname;
+	$params->{'brandkey'} = $self->get_brandkey;
 	return $self->_make_request_handler('activate', $params);
 }
 
@@ -277,7 +280,8 @@ sub update {
 
 	my ($self, $params) = @_;
 	$self->_sanitize_params('update', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
-
+	$params->{'brand'}    = $self->get_brandname;
+	$params->{'brandkey'} = $self->get_brandkey;
 	return $self->_make_request_handler('update', $params);
 }
 
@@ -305,7 +309,8 @@ sub get_tempauth {
 
 	my ($self, $params) = @_;
 	$self->_sanitize_params('auth', $params) or $self->_error('Failed to sanitize params. "'.$self->get_error, 1);
-
+	$params->{'brand'}    = $self->get_brandname;
+	$params->{'brandkey'} = $self->get_brandkey;
 	return $self->_make_request_handler('auth', $params);
 }
 
@@ -440,7 +445,7 @@ sub _make_request {
 
 	my $self = shift;
 	my $uri  = shift;
-
+	
 	my $res = eval {
 		local $SIG{ ALRM } = sub { croak 'connection timeout' };
 		my $timeout = $self->{_ua}->timeout() || '30';

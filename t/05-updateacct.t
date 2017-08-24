@@ -18,6 +18,7 @@ if ($output->{success}) {
 	diag "\nCreate account failed: $output->{debuginfo} - \n";
 	diag explain $@;
 }
+#diag explain $output;
 ok ($output->{success}, "Account creation");
 SKIP: {
 
@@ -35,7 +36,7 @@ SKIP: {
 		diag "Statuscheck failed: $output->{debuginfo} - \n";
 		diag explain $@;
 	}
-
+	#diag explain $output;
 	my $newemail;
 	my $userid = $params->{'userid'};
 	SKIP: {
@@ -44,7 +45,7 @@ SKIP: {
 		$params = { 'bzid'    => $output->{bzid},
 					'authkey' => $output->{authkey},
 					'email'   => CommonSubs::random_uid().'@hostgatortesting.com',
-					'pack'    => "35",
+					'pack'    => "39",
 					'price'   => "1.00",
 					'months'  => "24",
 		};
@@ -57,8 +58,9 @@ SKIP: {
 			diag "\nUpdate failed: $output->{debuginfo} - \n";
 			diag explain $@;
 		}
+		#diag explain $output;
 		ok ( $output->{success}, "Update account");
-
+		
 		SKIP: {
 			skip "Failed to Update info for '$userid'", 4 if (not $output->{success});
 
@@ -68,6 +70,7 @@ SKIP: {
 
 			#diag "\nChecking updated account info:\n".explain($params);
 			$output =  eval { $api->statuscheck($params); };
+			#diag explain $output;
 			if ($output->{success}) {
 				#diag "\nUpdated statuscheck output:\n".explain($output);
 			} else {
@@ -77,7 +80,7 @@ SKIP: {
 			ok ( $output->{success} == 1, "Statuscheck on updated acct");
 			ok ( $output->{bzid} eq $bizid, "bizid on updated account matches");
 			ok ( $output->{authkey} eq $authkey, "authkey on updated account matches");
-			ok ( $output->{pack} eq '35', "package id on updated account matches");
+			ok ( $output->{pack} eq '39', "package id on updated account matches");
 			ok ( $output->{months} eq '24', "months on updated account matches");
 		}
 	}
