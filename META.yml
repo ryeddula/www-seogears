@@ -16,7 +16,7 @@ name: WWW-SEOGears
 provides:
   WWW::SEOGears:
     file: lib/WWW/SEOGears.pm
-    version: 0.04
+    version: 0.06
 requires:
   Date::Calc: 0
   HTTP::Tiny: 0.029
@@ -26,4 +26,4 @@ requires:
 resources:
   license: http://www.perlfoundation.org/artistic_license_2_0
   repository: https://github.com/ryeddula/www-seogears
-version: 0.04
+version: 0.06

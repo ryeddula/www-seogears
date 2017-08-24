@@ -37,7 +37,7 @@ SKIP: {
 	}
 	ok ($output->{success}, "Statuscheck returned success");
 	ok ($output->{authkey} eq $authkey, "Authkey returned matches");
-	ok ($output->{pack} eq '32', "Package ID matches");
+	ok ($output->{pack} eq '36', "Package ID matches");
 	ok ($output->{price} eq "14.99", "Package price is correct");
 	ok ($output->{months} eq "1", "Months value is correct");
 }

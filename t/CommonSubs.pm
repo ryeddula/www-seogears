@@ -47,7 +47,7 @@ sub gen_rand_params {
 	$params->{'domain'}    = 'testing-'.random_uid().'-testing.com';
 	$params->{'rep'}       = 'testing@testing.com';
 	$params->{'placement'} = 'reg';
-	$params->{'pack'}      = '32';
+	$params->{'pack'}      = '36';
 	$params->{'price'}     = '14.99';
 	$params->{'months'}    = 1;
 	return $params;
